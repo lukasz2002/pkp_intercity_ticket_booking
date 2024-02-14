@@ -9,7 +9,6 @@ from selenium.webdriver.support.wait import WebDriverWait
 from selenium.webdriver.support import expected_conditions as EC
 from selenium.common.exceptions import TimeoutException
 from datetime import date
-from datetime import datetime
 import locale
 import calendar
 
@@ -18,9 +17,9 @@ class Web:
     def __init__(self):
         # self.login = input("Pass email: ")
         # self.password = input("Pass password: ")
-        # self.start_station = input("Pass start station: ")
-        # self.destination_station = input("Pass destination station: ")
-        self.date = input("Pass date in format DD-MM-YYYY: ")
+        self.start_station = input("Pass start station: ")
+        self.destination_station = input("Pass destination station: ")
+        # self.date = input("Pass date in format DD-MM-YYYY: ")
         # self.time = input("Pass when train should start from start station (format: HH): ")
         # self.preferred_ticket_class = input("What is your preferred class? First -> 1, Second -> 2: ")
         # self.reduced_tariff = input("Any tariff? ")
@@ -43,6 +42,7 @@ class Web:
         }
         self.pass_single_station(inputs["start_station"], self.start_station)
         self.pass_single_station(inputs["final_station"], self.destination_station)
+        self.remove_popup_station()
 
     def pass_single_station(self, input_xpath, input_value):
         input_element = self.driver.find_element(By.XPATH, input_xpath)
@@ -62,6 +62,11 @@ class Web:
             .key_down(Keys.ARROW_DOWN) \
             .key_down(Keys.ENTER) \
             .perform()
+
+    def remove_popup_station(self):
+        element_to_remove_by_click = '//*[@id="searchTrainForm"]/div[2]/div[1]'
+        input_element = self.driver.find_element(By.XPATH, element_to_remove_by_click)
+        input_element.click()
 
     def get_user_date_into_dict(self):
         date_as_list = self.date.split("-")
@@ -120,3 +125,5 @@ class Web:
             # TODO: raise error here
             print(f"Provided {msg} is too small!")
             exit()
+
+
