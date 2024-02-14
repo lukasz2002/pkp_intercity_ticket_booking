@@ -9,6 +9,8 @@ from selenium.webdriver.support.wait import WebDriverWait
 from selenium.webdriver.support import expected_conditions as EC
 from selenium.common.exceptions import TimeoutException
 from datetime import date
+from datetime import datetime
+import locale
 import calendar
 
 
@@ -23,6 +25,7 @@ class Web:
         # self.preferred_ticket_class = input("What is your preferred class? First -> 1, Second -> 2: ")
         # self.reduced_tariff = input("Any tariff? ")
         self.driver = None
+        self.date_as_dict = None
 
     def init_web(self):
         options = Options()
@@ -91,9 +94,10 @@ class Web:
             upper_month_limit = 12
             self.check_lower_date_limit(date_dict["month"], lower_month_limit, "month")
             self.check_upper_date_limit(date_dict["month"], upper_month_limit, "month")
-            lower_day_limit = date.today().day
+            if date_dict["month"] == date.today().month:
+                lower_day_limit = date.today().day
+                self.check_lower_date_limit(date_dict["day"], lower_day_limit, "day")
             upper_day_limit = calendar.monthrange(date_dict["year"], date_dict["month"])[1]
-            self.check_lower_date_limit(date_dict["day"], lower_day_limit, "day")
             self.check_upper_date_limit(date_dict["day"], upper_day_limit, "day")
         else:
             upper_month_limit = date.today().month
@@ -101,7 +105,7 @@ class Web:
             upper_day_limit = date.today().day
             self.check_upper_date_limit(date_dict["day"], upper_day_limit, "day")
 
-        return date_dict
+        self.date_as_dict = date_dict
 
     @staticmethod
     def check_upper_date_limit(user_date, limit, msg):
