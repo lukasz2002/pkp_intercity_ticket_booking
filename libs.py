@@ -19,7 +19,7 @@ class Web:
         # self.password = input("Pass password: ")
         self.start_station = input("Pass start station: ")
         self.destination_station = input("Pass destination station: ")
-        # self.date = input("Pass date in format DD-MM-YYYY: ")
+        self.date = input("Pass date in format DD-MM-YYYY: ")
         # self.time = input("Pass when train should start from start station (format: HH): ")
         # self.preferred_ticket_class = input("What is your preferred class? First -> 1, Second -> 2: ")
         # self.reduced_tariff = input("Any tariff? ")
@@ -125,5 +125,70 @@ class Web:
             # TODO: raise error here
             print(f"Provided {msg} is too small!")
             exit()
+
+    def pass_date(self):
+        date_input_trigger = self.driver.find_element(By.XPATH, '//*[@id="date_picker_trigger"]')
+        date_input_trigger.click()
+        self.choose_month_and_year()
+        self.enter_day()
+
+    def choose_month_and_year(self):
+        user_month_name = self.number_to_month()
+        user_year = self.date_as_dict["year"]
+
+        while True:
+            month_element = self.driver.find_element(By.XPATH, '//div[@class="asd__month"]/div/span[1]')
+            year_element = self.driver.find_element(By.XPATH, '//div[@class="asd__month"]/div/span[2]')
+            WebDriverWait(self.driver, 10).until(
+                EC.element_to_be_clickable((By.XPATH, '//div[@class="asd__month"]/div/span[1]'))
+            )
+            if str(user_month_name) != str(month_element.text).lower() or str(user_year) != str(year_element.text):
+                self.swipe_month("right")
+            else:
+                break
+
+    def number_to_month(self):
+        locale.setlocale(locale.LC_TIME, 'pl_PL')
+        month_num = self.date_as_dict["month"]
+        month_name = calendar.month_name[month_num]
+        return month_name
+
+    def swipe_month(self, button_direction):
+        if button_direction == "left":
+            dsc_string = "Move backward to switch to the previous month."
+            button_xpath = rf"//div[1]/div[1]/button[@aria-label='{dsc_string}']"
+        elif button_direction == "right":
+            dsc_string = "Move forward to switch to the next month."
+            button_xpath = rf"//div[1]/div[2]/button[@aria-label='{dsc_string}']"
+        else:
+            # TODO: raise error here
+            return
+
+        button_element = self.driver.find_element(By.XPATH, button_xpath)
+        try:
+            WebDriverWait(self.driver, 10).until(
+                EC.element_to_be_clickable((By.XPATH, button_xpath))
+            )
+        except TimeoutException:
+            print("Not possible to click arrow button")
+            self.driver.quit()
+            exit()
+        button_element.click()
+
+    def enter_day(self):
+        path_to_button = "//div[2]/div[1]/div[2]/table/tbody/*/*/button"
+        day = self.date_as_dict["day"]
+        find_rule = f'[contains(text(), "{day}")]'
+        button_elements = self.driver.find_elements(By.XPATH, rf'{path_to_button}{find_rule}')
+        try:
+            WebDriverWait(self.driver, 10).until(
+                EC.element_to_be_clickable((By.XPATH, rf'{path_to_button}{find_rule}'))
+            )
+        except TimeoutException:
+            print("Popup with date didn't load in time")
+            self.driver.quit()
+            exit()
+
+        button_elements[0].click()
 
 
