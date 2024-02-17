@@ -11,16 +11,17 @@ from selenium.common.exceptions import TimeoutException
 from datetime import date
 import locale
 import calendar
+from custom_exceptions import *
 
 
 class Web:
     def __init__(self):
         # self.login = input("Pass email: ")
         # self.password = input("Pass password: ")
-        self.start_station = input("Pass start station: ")
-        self.destination_station = input("Pass destination station: ")
-        self.date = input("Pass date in format DD-MM-YYYY: ")
-        # self.time = input("Pass when train should start from start station (format: HH): ")
+        # self.start_station = input("Pass start station: ")
+        # self.destination_station = input("Pass destination station: ")
+        # self.date = input("Pass date in format DD-MM-YYYY: ")
+        self.time = input("When the train should start from start station (format: HH:MM): ")
         # self.preferred_ticket_class = input("What is your preferred class? First -> 1, Second -> 2: ")
         # self.reduced_tariff = input("Any tariff? ")
         self.driver = None
@@ -71,15 +72,11 @@ class Web:
     def get_user_date_into_dict(self):
         date_as_list = self.date.split("-")
         if len(date_as_list) != 3:
-            # TODO: raise error here
-            print("Wrong date format")
-            exit()
+            raise WrongDateFormat("Proper date format: DD-MM-YY")
 
         for piece_of_date in date_as_list:
             if not piece_of_date.isdigit():
-                # TODO: raise error here
-                print("Letters were used!")
-                exit()
+                raise WrongDateFormat("Letters were used")
 
         date_dict = {
             "day": int(date_as_list[0]),
@@ -115,16 +112,12 @@ class Web:
     @staticmethod
     def check_upper_date_limit(user_date, limit, msg):
         if user_date > limit:
-            # TODO: raise error here
-            print(f"Provided {msg} is too large!")
-            exit()
+            raise WrongDateFormat(f"Provided {msg} is too large!")
 
     @staticmethod
     def check_lower_date_limit(user_date, limit, msg):
         if user_date < limit:
-            # TODO: raise error here
-            print(f"Provided {msg} is too small!")
-            exit()
+            raise WrongDateFormat(f"Provided {msg} is too small!")
 
     def pass_date(self):
         date_input_trigger = self.driver.find_element(By.XPATH, '//*[@id="date_picker_trigger"]')
@@ -161,7 +154,7 @@ class Web:
             dsc_string = "Move forward to switch to the next month."
             button_xpath = rf"//div[1]/div[2]/button[@aria-label='{dsc_string}']"
         else:
-            # TODO: raise error here
+            raise WrongSwipeMonthParameterProvided("Allowed parameters: left | right")
             return
 
         button_element = self.driver.find_element(By.XPATH, button_xpath)
@@ -190,5 +183,3 @@ class Web:
             exit()
 
         button_elements[0].click()
-
-

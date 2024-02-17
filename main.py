@@ -3,10 +3,12 @@ from libs import Web
 
 def run():
     web = Web()
-    # web.init_web()
+    # web.get_user_date_into_dict()
+    web.validate_hour()
+    web.init_web()
     # web.pass_station()
     # web.pass_date()
-    web.get_user_date_into_dict()
+    web.pass_hour()
 
 
 if __name__ == "__main__":
